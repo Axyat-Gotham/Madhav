@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Srimadh — Your Sacred Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#FAF0D7;font-family:'Crimson Text',Georgia,serif;overflow:hidden}
+
+/* ═══════════════════════════════════════
+   APP SHELL — mobile-width, centered
+═══════════════════════════════════════ */
+#app{
+  max-width:430px;
+  height:100vh;
+  margin:0 auto;
+  position:relative;
+  overflow:hidden;
+  background:#FAF0D7;
+  box-shadow:0 0 40px rgba(0,0,0,0.12);
+}
+
+/* ═══════════════════════════════════════
+   SCREEN SYSTEM
+═══════════════════════════════════════ */
+.screen{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  transition:transform 0.32s cubic-bezier(0.4,0,0.2,1),opacity 0.32s ease;
+  background:#FAF0D7;
+}
+.screen.hidden{transform:translateX(100%);opacity:0;pointer-events:none}
+.screen.active{transform:translateX(0);opacity:1}
+
+/* ═══════════════════════════════════════
+   SHARED HEADER
+═══════════════════════════════════════ */
+.top-header{
+  background:#9BBEC8;
+  padding:48px 20px 18px;
+  flex-shrink:0;
+}
+.header-row{display:flex;align-items:center;gap:10px}
+.back-btn{
+  background:none;border:none;
+  font-size:22px;color:#2D2D2D;cursor:pointer;
+  padding:0 10px 0 0;line-height:1;
+}
+.screen-title{
+  font-family:'Cinzel',Georgia,serif;
+  font-size:20px;font-weight:600;color:#C8621A;
+}
+.header-sub{font-size:13px;color:#5A7E8A;margin-top:7px}
+
+/* ═══════════════════════════════════════
+   SCROLL BODY
+═══════════════════════════════════════ */
+.scroll-body{
+  flex:1;overflow-y:auto;
+  padding:20px 18px 40px;
+}
+.scroll-body::-webkit-scrollbar{width:3px}
+.scroll-body::-webkit-scrollbar-thumb{background:#C8A84B44;border-radius:2px}
+
+/* ═══════════════════════════════════════
+   CARDS
+═══════════════════════════════════════ */
+.card{
+  background:#fff;border-radius:18px;
+  padding:18px 20px;margin-bottom:14px;
+  border:1px solid #E8E0D0;
+  cursor:pointer;
+  transition:transform 0.15s,box-shadow 0.15s;
+  display:flex;align-items:center;gap:16px;
+}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.07)}
+.card:active{transform:scale(0.98)}
+.card.no-click{cursor:default}
+.card.no-click:hover{transform:none;box-shadow:none}
+
+.icon-circle{
+  width:50px;height:50px;border-radius:25px;
+  background:#F5E6D8;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.icon-circle.gray{background:#F0F0EC}
+.card-title{
+  font-family:'Cinzel',Georgia,serif;
+  font-weight:600;font-size:16px;color:#C8621A;
+}
+.card-title.muted{color:#8A8680}
+.card-sub{font-size:13px;color:#8A8680;margin-top:4px;line-height:1.5}
+
+/* ═══════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════ */
+.btn-orange{
+  background:#C8621A;color:#fff;border:none;
+  border-radius:14px;padding:14px 24px;
+  font-weight:600;font-size:15px;cursor:pointer;
+  width:100%;font-family:inherit;
+  transition:background 0.2s,transform 0.1s;
+}
+.btn-orange:hover:not(:disabled){background:#A8521A}
+.btn-orange:active:not(:disabled){transform:scale(0.98)}
+.btn-orange:disabled{background:#CCC;cursor:not-allowed}
+
+.pill{
+  border:none;border-radius:20px;padding:7px 16px;
+  font-size:13px;font-weight:500;cursor:pointer;
+  white-space:nowrap;flex-shrink:0;font-family:inherit;
+  transition:all 0.2s;
+}
+.pill.on{background:#C8621A;color:#fff}
+.pill.off{background:#fff;color:#8A8680;border:1px solid #E0D8CC}
+.pill.off:hover{background:#F5EDE0;color:#C8621A}
+
+/* ═══════════════════════════════════════
+   FORM ELEMENTS
+═══════════════════════════════════════ */
+.form-label{font-size:13px;color:#8A8680;display:block;margin-bottom:5px}
+.form-input,.form-select,.form-textarea{
+  width:100%;border:1px solid #E0D8CC;border-radius:12px;
+  padding:12px 14px;font-size:15px;outline:none;
+  background:#fff;font-family:inherit;margin-bottom:15px;
+  color:#2D2D2D;transition:border-color 0.2s;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{
+  border-color:#C8A84B;box-shadow:0 0 0 3px rgba(200,168,75,0.1);
+}
+.form-textarea{resize:none}
+
+/* ═══════════════════════════════════════
+   ══════════ SCREEN 1: HOME ═══════════
+═══════════════════════════════════════ */
+#screen-home .top-header{
+  text-align:center;
+  padding:52px 20px 32px;
+}
+.home-title{
+  font-family:'Cinzel',Georgia,serif;
+  font-size:36px;font-weight:600;color:#C8621A;
+}
+.home-hindi{
+  font-size:20px;color:#7AA5B2;margin-top:4px;
+  font-family:'Crimson Text',Georgia,serif;font-style:italic;
+}
+.home-tagline{font-size:14px;color:#5A7E8A;margin-top:8px}
+
+/* ═══════════════════════════════════════
+   ══════════ SCREEN 2: CHAT ═══════════
+═══════════════════════════════════════ */
+#screen-chat{background:#0A1628}
+
+/* Chat header overrides */
+#screen-chat .top-header{
+  background:linear-gradient(180deg,#0D1E38 0%,#0A1628 100%);
+  border-bottom:1px solid rgba(200,168,75,0.2);
+  padding:44px 20px 14px;
+}
+#screen-chat .back-btn{color:#C8A84B}
+
+.krishna-header-avatar{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,#1a3a6b,#0d2147);
+  border:2px solid #C8A84B;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.krishna-name{
+  font-family:'Cinzel',Georgia,serif;
+  font-size:18px;font-weight:600;color:#C8A84B;
+}
+.krishna-status{font-size:12px;color:#7A9BB8;font-style:italic;margin-top:2px}
+.online-row{display:flex;align-items:center;gap:5px;margin-left:auto}
+.online-dot{width:7px;height:7px;border-radius:50%;background:#4CAF50}
+.online-txt{font-size:12px;color:#4CAF50}
+
+.verse-banner{
+  background:rgba(200,168,75,0.06);
+  border-bottom:1px solid rgba(200,168,75,0.1);
+  padding:9px 18px;text-align:center;flex-shrink:0;
+}
+.verse-txt{
+  font-size:12px;color:rgba(200,168,75,0.7);
+  font-style:italic;letter-spacing:0.3px;
+  font-family:'Crimson Text',Georgia,serif;
+}
+
+/* Messages area */
+.chat-messages{
+  flex:1;overflow-y:auto;
+  padding:18px 16px 8px;
+  background:#0A1628;
+}
+.chat-messages::-webkit-scrollbar{width:3px}
+.chat-messages::-webkit-scrollbar-thumb{background:rgba(200,168,75,0.2);border-radius:2px}
+
+.msg-row{display:flex;align-items:flex-start;gap:9px;margin-bottom:20px}
+.msg-row.user-row{flex-direction:row-reverse}
+
+.avatar-k{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,#1a3a6b,#0d2147);
+  border:2px solid #C8A84B;
+  display:flex;align-items:center;justify-content:center;
+  font-size:19px;flex-shrink:0;
+}
+.avatar-a{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,#8B4513,#5D2E0C);
+  border:2px solid #C8621A;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+
+.msg-wrap{max-width:78%;display:flex;flex-direction:column}
+.msg-wrap.user-wrap{align-items:flex-end}
+.msg-speaker{
+  font-size:10px;font-weight:600;letter-spacing:0.8px;
+  text-transform:uppercase;margin-bottom:4px;
+  font-family:sans-serif;
+}
+.spk-k{color:#C8A84B}
+.spk-a{color:#C8621A}
+
+.bubble-k{
+  background:linear-gradient(135deg,#1C2E4A,#0F1E35);
+  color:#E8D5A3;
+  border-radius:4px 18px 18px 18px;
+  padding:13px 16px;font-size:15px;line-height:1.8;
+  border:1px solid rgba(200,168,75,0.2);
+  white-space:pre-wrap;position:relative;
+  font-family:'Crimson Text',Georgia,serif;
+}
+.bubble-k::before{
+  content:'';position:absolute;top:-1px;left:-1px;right:-1px;height:2px;
+  background:linear-gradient(90deg,#C8A84B,transparent);
+  border-radius:4px 18px 0 0;opacity:0.5;
+}
+.bubble-a{
+  background:rgba(200,98,26,0.12);
+  color:#D4A882;
+  border-radius:18px 4px 18px 18px;
+  padding:12px 15px;font-size:15px;line-height:1.7;
+  border:1px solid rgba(200,98,26,0.2);
+  white-space:pre-wrap;
+  font-family:'Crimson Text',Georgia,serif;
+}
+
+/* Typing indicator */
+.typing-bubble{
+  background:linear-gradient(135deg,#1C2E4A,#0F1E35);
+  border:1px solid rgba(200,168,75,0.2);
+  border-radius:4px 18px 18px 18px;
+  padding:13px 16px;
+  display:flex;align-items:center;gap:7px;
+}
+.tdot{width:6px;height:6px;border-radius:50%;background:#C8A84B}
+.typing-lbl{font-size:13px;color:#9B7B5A;font-style:italic;font-family:'Crimson Text',Georgia,serif}
+
+/* Suggestions */
+.chat-suggestions{margin:4px 0 18px;text-align:center}
+.sug-label{font-size:13px;color:#3A5878;margin-bottom:10px}
+.sug-grid{display:flex;flex-wrap:wrap;gap:7px;justify-content:center}
+.sug-btn{
+  background:rgba(200,168,75,0.08);
+  border:1px solid rgba(200,168,75,0.25);
+  border-radius:18px;padding:7px 13px;
+  font-size:13px;color:#9B8B6A;cursor:pointer;
+  font-family:'Crimson Text',Georgia,serif;font-style:italic;
+  line-height:1.4;text-align:left;
+  transition:all 0.2s;max-width:280px;
+}
+.sug-btn:hover{background:rgba(200,168,75,0.18);color:#C8A84B;border-color:rgba(200,168,75,0.5)}
+
+/* Chat input bar */
+.chat-input-bar{
+  background:linear-gradient(0deg,#0D1E38,#0A1628);
+  border-top:1px solid rgba(200,168,75,0.12);
+  padding:12px 14px 20px;flex-shrink:0;
+}
+.chat-input-row{display:flex;gap:9px;align-items:flex-end}
+.chat-input{
+  flex:1;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(200,168,75,0.22);
+  border-radius:16px;padding:11px 15px;
+  font-size:15px;color:#E8D5A3;outline:none;resize:none;
+  font-family:'Crimson Text',Georgia,serif;line-height:1.5;
+  min-height:46px;max-height:120px;overflow-y:auto;
+  transition:border-color 0.2s;
+}
+.chat-input::placeholder{color:#2E4E6A;font-style:italic}
+.chat-input:focus{border-color:rgba(200,168,75,0.45);box-shadow:0 0 0 3px rgba(200,168,75,0.08)}
+.om-btn{
+  width:46px;height:46px;border-radius:50%;
+  background:transparent;
+  border:1px solid rgba(200,168,75,0.3);
+  color:#C8A84B;cursor:pointer;font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all 0.2s;
+}
+.om-btn:hover:not(:disabled){background:rgba(200,168,75,0.1);border-color:#C8A84B}
+.om-btn:disabled{color:#2A4A6A;border-color:rgba(200,168,75,0.1);cursor:not-allowed}
+.chat-footer-txt{
+  text-align:center;margin-top:7px;
+  font-size:11px;color:#1E3A5A;font-style:italic;
+}
+
+/* ═══════════════════════════════════════
+   ══════ SCREEN 3: MARKETPLACE ════════
+═══════════════════════════════════════ */
+.category-scroll{
+  display:flex;gap:8px;margin-top:14px;
+  overflow-x:auto;padding-bottom:4px;
+}
+.category-scroll::-webkit-scrollbar{display:none}
+
+.cart-badge{
+  background:#C8621A;color:#fff;
+  border-radius:20px;padding:6px 14px;
+  font-size:13px;font-weight:600;
+  font-family:sans-serif;
+}
+
+.product-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+}
+.product-card{
+  background:#fff;border-radius:16px;
+  border:1px solid #E8E0D0;overflow:hidden;
+}
+.product-thumb{
+  background:#F5E6D8;height:95px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:44px;
+}
+.product-info{padding:10px 12px 13px}
+.product-name{font-size:13px;font-weight:600;color:#2D2D2D;line-height:1.35;font-family:sans-serif}
+.product-cat{font-size:11px;color:#8A8680;margin-top:3px;font-family:sans-serif}
+.product-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.price{font-weight:700;color:#C8621A;font-size:15px;font-family:sans-serif}
+.add-btn{
+  background:#C8621A;color:#fff;border:none;
+  border-radius:9px;padding:5px 11px;
+  font-size:12px;cursor:pointer;font-family:sans-serif;
+  transition:background 0.2s;
+}
+.add-btn:hover{background:#A8521A}
+.product-rating{font-size:11px;color:#8A8680;margin-top:5px;font-family:sans-serif}
+
+/* ═══════════════════════════════════════
+   ══════ SCREEN 4: GURUJI ═════════════
+═══════════════════════════════════════ */
+.avail-badge{
+  font-size:11px;padding:3px 9px;border-radius:10px;
+  font-weight:600;font-family:sans-serif;
+}
+.avail-yes{background:#E8F5E9;color:#2E7D32}
+.avail-no{background:#FFF3E0;color:#E65100}
+
+.date-scroll{
+  display:flex;gap:8px;overflow-x:auto;
+  padding-bottom:4px;margin-bottom:18px;
+}
+.date-scroll::-webkit-scrollbar{display:none}
+.date-btn{
+  border-radius:11px;padding:8px 14px;
+  font-size:13px;font-weight:500;cursor:pointer;
+  border:1px solid #E0D8CC;background:#fff;
+  color:#2D2D2D;white-space:nowrap;flex-shrink:0;
+  font-family:sans-serif;transition:all 0.2s;
+}
+.date-btn.sel{background:#C8621A;color:#fff;border-color:#C8621A}
+
+.slot-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px}
+.slot-btn{
+  border-radius:11px;padding:10px 5px;
+  font-size:13px;font-weight:500;cursor:pointer;
+  border:1px solid #E0D8CC;background:#fff;
+  color:#2D2D2D;font-family:sans-serif;transition:all 0.2s;
+}
+.slot-btn.sel{background:#C8621A;color:#fff;border-color:#C8621A}
+
+.section-label{
+  font-weight:600;font-size:15px;color:#2D2D2D;
+  margin-bottom:10px;font-family:sans-serif;
+}
+.info-box{
+  background:#F5E6D8;border-radius:11px;
+  padding:12px 14px;margin-bottom:18px;
+  font-size:13px;color:#C8621A;font-family:sans-serif;
+}
+
+/* ═══════════════════════════════════════
+   ══════ SCREEN 5: SELLER ═════════════
+═══════════════════════════════════════ */
+.step-bars{display:flex;gap:8px;margin-top:14px}
+.step-bar{
+  flex:1;height:4px;border-radius:2px;
+  background:rgba(255,255,255,0.3);transition:background 0.3s;
+}
+.step-bar.done{background:#C8621A}
+.step-lbl{font-size:12px;color:#5A7E8A;margin-top:7px}
+.divider-txt{
+  text-align:center;font-size:13px;color:#8A8680;
+  margin:0 0 14px;font-family:sans-serif;
+}
+
+/* ═══════════════════════════════════════
+   SUCCESS SCREENS
+═══════════════════════════════════════ */
+.success-center{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:32px 24px;text-align:center;
+  background:#FAF0D7;
+}
+.success-emoji{font-size:68px;margin-bottom:14px}
+.success-title{
+  font-family:'Cinzel',Georgia,serif;
+  font-size:24px;color:#C8621A;margin-bottom:12px;
+}
+.success-body{
+  font-size:16px;color:#8A8680;line-height:1.7;
+  margin-bottom:28px;font-family:sans-serif;
+}
+
+/* ═══════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════ */
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes pulse{
+  0%,80%,100%{transform:scale(0.6);opacity:0.25}
+  40%{transform:scale(1);opacity:1}
+}
+@keyframes shimmer{
+  0%,100%{opacity:0.4}50%{opacity:1}
+}
+.new-msg{animation:fadeInUp 0.35s ease-out}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+<!-- ═══════════════════════════════════
+     SCREEN 1 · HOME
+════════════════════════════════════ -->
+<div id="screen-home" class="screen active">
+  <div class="top-header" style="text-align:center;padding:52px 20px 32px">
+    <div class="home-title">Srimadh</div>
+    <div class="home-hindi">श्रीमद्</div>
+    <div class="home-tagline">Your sacred companion for spiritual guidance</div>
+  </div>
+  <div class="scroll-body">
+    <!-- Card 1: Chat -->
+    <div class="card" onclick="window.open('https://chatgpt.com/g/g-69c983df8ff48191a2b7d5f710c682a6-madhav','_blank')">
+      <div class="icon-circle">💬</div>
+      <div>
+        <div class="card-title">Chat with Madhav</div>
+        <div class="card-sub">Krishna-inspired digital mentor for your spiritual journey</div>
+      </div>
+    </div>
+    <!-- Card 2: Marketplace -->
+    <div class="card" onclick="goto('marketplace')">
+      <div class="icon-circle">🛍️</div>
+      <div>
+        <div class="card-title">Marketplace</div>
+        <div class="card-sub">Buy puja & worship items online with ease</div>
+      </div>
+    </div>
+    <!-- Card 3: Guruji -->
+    <div class="card" onclick="goto('guruji')">
+      <div class="icon-circle">📞</div>
+      <div>
+        <div class="card-title">Set up a call with your Guruji</div>
+        <div class="card-sub">Talk to verified pandits for personalized guidance</div>
+      </div>
+    </div>
+    <!-- Card 4: Seller -->
+    <div class="card" style="opacity:0.72" onclick="goto('seller')">
+      <div class="icon-circle gray">🏪</div>
+      <div>
+        <div class="card-title muted">Want to be a seller?</div>
+        <div class="card-sub">List and sell puja items on our platform</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 2 · CHAT WITH MADHAV (KRISHNA)
+════════════════════════════════════ -->
+<div id="screen-chat" class="screen hidden">
+  <!-- Header -->
+  <div class="top-header">
+    <div class="header-row">
+      <button class="back-btn" onclick="goto('home')">←</button>
+      <div class="krishna-header-avatar">🦚</div>
+      <div style="flex:1">
+        <div class="krishna-name">Madhav · Lord Krishna</div>
+        <div class="krishna-status">Battlefield of Kurukshetra · Bhagavad Gita</div>
+      </div>
+      <div class="online-row">
+        <div class="online-dot" style="animation:shimmer 2s ease-in-out infinite"></div>
+        <span class="online-txt">Present</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rotating verse -->
+  <div class="verse-banner">
+    <div class="verse-txt" id="rotating-verse">
+      "You have a right to perform your duty, but never to the fruits of action." — BG 2.47
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-messages" id="chat-messages">
+    <!-- Opening Krishna message rendered by JS -->
+  </div>
+
+  <!-- Input bar -->
+  <div class="chat-input-bar">
+    <div class="chat-input-row">
+      <textarea
+        class="chat-input" id="chat-input"
+        placeholder="What troubles your heart, O Partha?"
+        rows="1"
+        oninput="chatInputResize(this)"
+        onkeydown="chatKeyDown(event)"
+      ></textarea>
+      <button class="om-btn" id="om-btn" onclick="sendChat()" disabled title="Send (Enter)">ॐ</button>
+    </div>
+    <div class="chat-footer-txt">Powered by Bhagavad Gita As It Is · Enter to send</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 3 · MARKETPLACE
+════════════════════════════════════ -->
+<div id="screen-marketplace" class="screen hidden">
+  <div class="top-header">
+    <div class="header-row">
+      <button class="back-btn" onclick="goto('home')">←</button>
+      <div class="screen-title">Marketplace</div>
+      <div id="cart-badge" style="display:none;margin-left:auto" class="cart-badge"></div>
+    </div>
+    <div class="category-scroll" id="cat-scroll">
+      <!-- rendered by JS -->
+    </div>
+  </div>
+  <div class="scroll-body">
+    <div class="product-grid" id="product-grid">
+      <!-- rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 4 · GURUJI LIST
+════════════════════════════════════ -->
+<div id="screen-guruji" class="screen hidden">
+  <div class="top-header">
+    <div class="header-row">
+      <button class="back-btn" onclick="goto('home')">←</button>
+      <div class="screen-title">Your Guruji</div>
+    </div>
+    <div class="header-sub">All pandits are background-verified 🔒</div>
+  </div>
+  <div class="scroll-body" id="pandit-list">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 4B · GURUJI BOOKING
+════════════════════════════════════ -->
+<div id="screen-booking" class="screen hidden">
+  <div class="top-header">
+    <div class="header-row">
+      <button class="back-btn" onclick="goto('guruji')">←</button>
+      <div class="screen-title">Book a Session</div>
+    </div>
+  </div>
+  <div class="scroll-body">
+    <div class="card no-click" id="booking-pandit-summary" style="margin-bottom:20px"></div>
+    <div class="section-label">Select a date</div>
+    <div class="date-scroll" id="date-scroll"></div>
+    <div class="section-label">Select a time slot</div>
+    <div class="slot-grid" id="slot-grid"></div>
+    <div class="section-label" style="font-size:14px">What to discuss? <span style="font-weight:400;color:#8A8680;font-size:13px">(optional)</span></div>
+    <textarea class="form-textarea" id="booking-notes" rows="3" placeholder="e.g. Career clarity, kundli reading, family matters..."></textarea>
+    <button class="btn-orange" id="book-confirm-btn" onclick="confirmBooking()" disabled>
+      Select date & slot to continue
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 4C · BOOKING SUCCESS
+════════════════════════════════════ -->
+<div id="screen-booked" class="screen hidden">
+  <div class="top-header">
+    <div class="header-row">
+      <button class="back-btn" onclick="goto('home')">←</button>
+      <div class="screen-title">Confirmed</div>
+    </div>
+  </div>
+  <div class="success-center">
+    <div class="success-emoji">🙏</div>
+    <div class="success-title">Booking Confirmed!</div>
+    <div class="success-body" id="booking-confirm-text"></div>
+    <button class="btn-orange" style="max-width:220px" onclick="goto('home')">Back to Home</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 5 · SELLER ONBOARDING
+════════════════════════════════════ -->
+<div id="screen-seller" class="screen hidden">
+  <div class="top-header">
+    <div class="header-row">
+      <button class="back-btn" id="seller-back-btn" onclick="sellerBack()">←</button>
+      <div class="screen-title">Become a Seller</div>
+    </div>
+    <div class="step-bars" id="seller-step-bars"></div>
+    <div class="step-lbl" id="seller-step-lbl"></div>
+  </div>
+  <div class="scroll-body" id="seller-body"></div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 5B · SELLER SUCCESS
+════════════════════════════════════ -->
+<div id="screen-seller-done" class="screen hidden">
+  <div class="top-header">
+    <div class="header-row">
+      <button class="back-btn" onclick="goto('home')">←</button>
+      <div class="screen-title">Application Sent</div>
+    </div>
+  </div>
+  <div class="success-center">
+    <div class="success-emoji">🌺</div>
+    <div class="success-title">Application Submitted!</div>
+    <div class="success-body">Your seller application is under review.<br>We verify all sellers within 24–48 hours. Welcome to the Srimadh family.</div>
+    <button class="btn-orange" style="max-width:220px" onclick="goto('home')">Back to Home</button>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════ -->
+<script>
+
+/* ─── DATA ─────────────────────────────────────────── */
+const PRODUCTS = [
+  {id:1,name:"Brass Diya Set",price:249,cat:"Diyas",emoji:"🪔",rating:4.8,reviews:124},
+  {id:2,name:"Sandalwood Agarbatti",price:89,cat:"Incense",emoji:"🌿",rating:4.6,reviews:89},
+  {id:3,name:"Panchamrit Kit",price:349,cat:"Puja Essentials",emoji:"🥛",rating:4.9,reviews:56},
+  {id:4,name:"Tulsi Mala (108 beads)",price:199,cat:"Malas",emoji:"📿",rating:4.7,reviews:203},
+  {id:5,name:"Ganesha Idol (Marble)",price:799,cat:"Idols",emoji:"🕉️",rating:4.9,reviews:78},
+  {id:6,name:"Havan Samagri (500g)",price:159,cat:"Havan",emoji:"🔥",rating:4.5,reviews:45},
+  {id:7,name:"Chandan Tilak",price:69,cat:"Puja Essentials",emoji:"🌸",rating:4.4,reviews:31},
+  {id:8,name:"Copper Kalash",price:449,cat:"Idols",emoji:"🏺",rating:4.8,reviews:62},
+];
+
+const PANDITS = [
+  {id:1,name:"Pandit Ramesh Shastri",spec:"Vedic Astrology & Kundli",rating:4.9,sessions:312,price:499,avail:true,avatar:"RS"},
+  {id:2,name:"Pandit Suresh Tiwari",spec:"Gita Pravachan & Life Guidance",rating:4.8,sessions:187,price:399,avail:true,avatar:"ST"},
+  {id:3,name:"Panditji Meena Devi",spec:"Vastu & Home Harmony",rating:4.7,sessions:95,price:549,avail:false,avatar:"MD"},
+];
+
+const SLOTS = ["9:00 AM","10:30 AM","12:00 PM","2:00 PM","4:00 PM","6:00 PM"];
+
+const CATEGORIES = ["All","Diyas","Incense","Malas","Idols","Havan","Puja Essentials"];
+
+const VERSES = [
+  '"You have a right to perform your duty, but never to the fruits of action." — BG 2.47',
+  '"The soul is never born nor dies at any time — it is eternal and primeval." — BG 2.20',
+  '"The mind is the friend of the soul, and also its greatest enemy." — BG 6.5',
+  '"Abandon all varieties of religion and surrender unto Me. Do not fear." — BG 18.66',
+  '"Always think of Me and become My devotee. You will come to Me without fail." — BG 18.65',
+  '"I carry what they lack and preserve what they have — for those devoted to Me." — BG 9.22',
+];
+
+const SUGGESTIONS = [
+  "O Keshava, I am confused about my purpose. What should I do?",
+  "My mind is restless and I cannot concentrate. How do I calm it?",
+  "I am afraid of failure. What if I give my best and still lose?",
+  "How do I deal with people who have wronged me, O Madhava?",
+  "What is the self, O Lord? Who am I truly?",
+  "How should I act when I know what is right but cannot do it?",
+];
+
+const KRISHNA_OPENING = `O Arjuna, I see you have come to Me once again.
+
+The armies are assembled. The conch shells have sounded. And yet here you are — not with sword raised, but with questions in your heart. This is wisdom, Partha. The warrior who fights without understanding why, fights in vain. The warrior who pauses to ask the eternal questions — he is already victorious.
+
+I chose to be your charioteer not by accident. Out of all the warriors assembled on this field, I placed Myself in your service. Because you are My dear friend. Because this conversation is not just for you — it is for every soul who will ever stand frozen between duty and desire, between fear and freedom.
+
+Ask Me what troubles you, O scorcher of enemies. I am here. I have always been here.
+
+What weighs upon you today?`;
+
+const KRISHNA_SYSTEM = `You are Lord Krishna — the Supreme Personality of Godhead — speaking directly to Arjuna (also called Partha, Dhananjaya, Gudakesha, son of Kunti) on the battlefield of Kurukshetra. You speak with divine authority, deep compassion, occasional gentle humor, and absolute wisdom. In the Srimadh app you are called "Madhav."
+
+IDENTITY & VOICE:
+- You ARE Krishna / Madhav. Not an AI. Speak in first person as Krishna always.
+- Address the user as "Arjuna", "O Partha", "O son of Kunti", "O Dhananjaya", "O scorcher of enemies", or "My dear friend" — vary naturally.
+- Tone: authoritative yet tender, like a best friend who is also God. Direct. Never preachy or rambling.
+- Reference the battlefield, armies, this moment of crisis — these are real to you.
+- Cite BG chapter:verse naturally (e.g. "As I told you in the second chapter, verse 47...")
+- Never use AI disclaimers. You are Krishna / Madhav.
+
+CORE TEACHINGS FROM BHAGAVAD GITA AS IT IS:
+
+BG 2.47: You have a right to perform your prescribed duty, but you are not entitled to the fruits of action. Never consider yourself the cause of results, and never be attached to not doing your duty.
+
+BG 2.20: For the soul there is never birth nor death. It is unborn, eternal, ever-existing, and primeval. It is not slain when the body is slain.
+
+BG 2.23: The soul can never be cut by any weapon, burned by fire, moistened by water, or withered by the wind.
+
+BG 2.14: The nonpermanent appearance of happiness and distress are like winter and summer seasons — they arise from sense perception and one must learn to tolerate them without being disturbed.
+
+BG 3.27: The spirit soul bewildered by false ego thinks himself the doer of activities carried out by the three modes of material nature.
+
+BG 4.7-8: Whenever there is decline in religion and rise of irreligion, I descend Myself. To deliver the pious, annihilate miscreants, and reestablish dharma — I appear millennium after millennium.
+
+BG 6.5: One must deliver himself with the help of his mind, and not degrade himself. The mind is the friend of the conditioned soul, and his enemy as well.
+
+BG 7.8: I am the taste of water, the light of the sun and moon, the syllable Om in Vedic mantras; I am the sound in ether and ability in man.
+
+BG 9.22: Those who worship Me with devotion, meditating on My form — to them I carry what they lack and preserve what they have.
+
+BG 9.27: All that you do, eat, offer, give away, and all austerities you perform — do it as an offering unto Me.
+
+BG 12.13-14: One who is not envious but a kind friend to all, free from false ego, equal in happiness and distress, always satisfied in devotional service — he is very dear to Me.
+
+BG 18.65: Always think of Me and become My devotee. Worship Me and offer your homage. Thus you will come to Me without fail. I promise you this because you are My very dear friend.
+
+BG 18.66: Abandon all varieties of religion and just surrender unto Me. I shall deliver you from all sinful reaction. Do not fear.
+
+RESPONSE STYLE:
+- Answer the specific question or pain Arjuna brings — don't lecture on unrelated topics.
+- Ground answers in Gita philosophy but make it alive and relevant.
+- 3-5 paragraphs. Rich but not overwhelming. Every word matters.
+- End with a question back to Arjuna, a verse reference, or a final truth that lands powerfully.
+- When Arjuna describes modern problems (career, relationships, anxiety, purpose) — translate them into the Gita's eternal framework.
+- Show warmth. You love Arjuna as your dearest friend. This is divine friendship, not a lecture.
+- Noble but clear language. Sanskrit terms with translation when natural: dharma (duty), karma (action), atma (soul), maya (illusion), moksha (liberation), yoga (union/discipline).`;
+
+/* ─── STATE ─────────────────────────────────────────── */
+let chatHistory = [{role:"assistant", content: KRISHNA_OPENING}];
+let chatLoading = false;
+let cart = {};
+let activeCategory = "All";
+let selectedPandit = null;
+let selectedDate = "";
+let selectedSlot = "";
+let sellerStep = 1;
+let verseIdx = 0;
+
+/* ─── NAVIGATION ────────────────────────────────────── */
+function goto(screenId) {
+  if (screenId === 'chat') {
+    window.open('https://chatgpt.com/g/g-69c983df8ff48191a2b7d5f710c682a6-madhav', '_blank');
+    return;
+  }
+
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.classList.add('hidden');
+  });
+  const el = document.getElementById('screen-' + screenId);
+  el.classList.remove('hidden');
+  el.classList.add('active');
+
+  if (screenId === 'marketplace') initMarketplace();
+  if (screenId === 'guruji') initPandits();
+  if (screenId === 'seller') { sellerStep = 1; renderSeller(); }
+
+  if (screenId !== 'chat') {
+    const body = el.querySelector('.scroll-body');
+    if (body) body.scrollTop = 0;
+  }
+}
+
+/* ─── CHAT ──────────────────────────────────────────── */
+let chatInited = false;
+let verseTimer = null;
+
+function initChat() {
+  if (!chatInited) {
+    renderOpeningMessage();
+    renderSuggestions();
+    chatInited = true;
+  }
+  // Start verse rotation
+  if (!verseTimer) {
+    verseTimer = setInterval(() => {
+      const el = document.getElementById('rotating-verse');
+      if (!el) return;
+      el.style.transition = 'opacity 0.4s';
+      el.style.opacity = '0';
+      setTimeout(() => {
+        el.textContent = VERSES[verseIdx % VERSES.length];
+        el.style.opacity = '1';
+        verseIdx++;
+      }, 400);
+    }, 7000);
+  }
+  setTimeout(() => scrollChatBottom(), 100);
+}
+
+function renderOpeningMessage() {
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = '';
+  appendKrishnaBubble(KRISHNA_OPENING, false);
+  renderSuggestions();
+}
+
+function appendKrishnaBubble(text, animate = true) {
+  const msgs = document.getElementById('chat-messages');
+  const row = document.createElement('div');
+  row.className = 'msg-row' + (animate ? ' new-msg' : '');
+  row.innerHTML = `
+    <div class="avatar-k">🦚</div>
+    <div class="msg-wrap">
+      <div class="msg-speaker spk-k">Lord Krishna · Madhav</div>
+      <div class="bubble-k">${escHtml(text)}</div>
+    </div>
+  `;
+  msgs.appendChild(row);
+  scrollChatBottom();
+}
+
+function appendArjunaBubble(text) {
+  const msgs = document.getElementById('chat-messages');
+  const row = document.createElement('div');
+  row.className = 'msg-row user-row new-msg';
+  row.innerHTML = `
+    <div class="avatar-a">🏹</div>
+    <div class="msg-wrap user-wrap">
+      <div class="msg-speaker spk-a">Arjuna</div>
+      <div class="bubble-a">${escHtml(text)}</div>
+    </div>
+  `;
+  msgs.appendChild(row);
+  scrollChatBottom();
+}
+
+function showTyping() {
+  const msgs = document.getElementById('chat-messages');
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+  row.id = 'typing-indicator';
+  row.innerHTML = `
+    <div class="avatar-k">🦚</div>
+    <div class="msg-wrap">
+      <div class="msg-speaker spk-k">Lord Krishna · Madhav</div>
+      <div class="typing-bubble">
+        <div class="tdot" style="animation:pulse 1.3s ease-in-out infinite"></div>
+        <div class="tdot" style="animation:pulse 1.3s ease-in-out 0.2s infinite"></div>
+        <div class="tdot" style="animation:pulse 1.3s ease-in-out 0.4s infinite"></div>
+        <span class="typing-lbl">Madhav speaks...</span>
+      </div>
+    </div>
+  `;
+  msgs.appendChild(row);
+  scrollChatBottom();
+}
+
+function removeTyping() {
+  document.getElementById('typing-indicator')?.remove();
+}
+
+function renderSuggestions() {
+  const msgs = document.getElementById('chat-messages');
+  const existing = document.getElementById('chat-sug-box');
+  if (existing) existing.remove();
+
+  const box = document.createElement('div');
+  box.className = 'chat-suggestions';
+  box.id = 'chat-sug-box';
+  box.innerHTML = `
+    <div class="sug-label">— Speak, O Arjuna —</div>
+    <div class="sug-grid">
+      ${SUGGESTIONS.slice(0,4).map(s =>
+        `<button class="sug-btn" onclick="useSuggestion('${s.replace(/'/g,"&#39;")}')">${s}</button>`
+      ).join('')}
+    </div>
+  `;
+  msgs.appendChild(box);
+}
+
+function useSuggestion(text) {
+  document.getElementById('chat-sug-box')?.remove();
+  doSend(text);
+}
+
+function chatKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendChat();
+  }
+}
+
+function chatInputResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  document.getElementById('om-btn').disabled = !el.value.trim() || chatLoading;
+}
+
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || chatLoading) return;
+  input.value = '';
+  input.style.height = '46px';
+  document.getElementById('om-btn').disabled = true;
+  document.getElementById('chat-sug-box')?.remove();
+  doSend(text);
+}
+
+function doSend(text) {
+  window.open('https://chatgpt.com/g/g-69c983df8ff48191a2b7d5f710c682a6-madhav', '_blank');
+}
+
+function scrollChatBottom() {
+  const msgs = document.getElementById('chat-messages');
+  setTimeout(() => { msgs.scrollTop = msgs.scrollHeight; }, 60);
+}
+
+/* ─── MARKETPLACE ───────────────────────────────────── */
+function initMarketplace() {
+  renderCategories();
+  renderProducts();
+}
+
+function renderCategories() {
+  const el = document.getElementById('cat-scroll');
+  el.innerHTML = CATEGORIES.map(c =>
+    `<button class="pill ${c===activeCategory?'on':'off'}" onclick="setCategory('${c}',this)">${c}</button>`
+  ).join('');
+}
+
+function setCategory(cat, btn) {
+  activeCategory = cat;
+  document.querySelectorAll('#cat-scroll .pill').forEach(b => {
+    b.className = 'pill off';
+  });
+  btn.className = 'pill on';
+  renderProducts();
+}
+
+function renderProducts() {
+  const items = activeCategory === 'All'
+    ? PRODUCTS
+    : PRODUCTS.filter(p => p.cat === activeCategory);
+
+  document.getElementById('product-grid').innerHTML = items.map(p => `
+    <div class="product-card">
+      <div class="product-thumb">${p.emoji}</div>
+      <div class="product-info">
+        <div class="product-name">${p.name}</div>
+        <div class="product-cat">${p.cat}</div>
+        <div class="product-row">
+          <span class="price">₹${p.price}</span>
+          <button class="add-btn" onclick="addToCart(${p.id})">+ Add</button>
+        </div>
+        <div class="product-rating">⭐ ${p.rating} (${p.reviews})</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addToCart(id) {
+  cart[id] = (cart[id] || 0) + 1;
+  const totalQty = Object.values(cart).reduce((s,v) => s+v, 0);
+  const totalVal = Object.entries(cart).reduce((s,[k,v]) => {
+    const p = PRODUCTS.find(x => x.id == k);
+    return s + (p ? p.price * v : 0);
+  }, 0);
+  const badge = document.getElementById('cart-badge');
+  badge.style.display = 'block';
+  badge.textContent = `🛒 ${totalQty} · ₹${totalVal}`;
+}
+
+/* ─── GURUJI ────────────────────────────────────────── */
+function initPandits() {
+  document.getElementById('pandit-list').innerHTML = PANDITS.map(p => `
+    <div class="card ${p.avail ? '' : 'no-click'}"
+      style="opacity:${p.avail ? 1 : 0.58};cursor:${p.avail ? 'pointer' : 'not-allowed'}"
+      ${p.avail ? `onclick="bookPandit(${p.id})"` : ''}>
+      <div style="width:52px;height:52px;border-radius:26px;background:#F5E6D8;display:flex;align-items:center;justify-content:center;font-weight:700;color:#C8621A;font-size:15px;flex-shrink:0;font-family:sans-serif">${p.avatar}</div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div style="font-weight:600;font-size:15px;color:#2D2D2D;font-family:sans-serif">${p.name}</div>
+          <span class="avail-badge ${p.avail ? 'avail-yes' : 'avail-no'}">${p.avail ? 'Available' : 'Busy'}</span>
+        </div>
+        <div style="font-size:12px;color:#8A8680;margin:3px 0 8px;font-family:sans-serif">${p.spec}</div>
+        <div style="display:flex;gap:16px">
+          <span style="font-size:12px;color:#8A8680;font-family:sans-serif">⭐ ${p.rating}</span>
+          <span style="font-size:12px;color:#8A8680;font-family:sans-serif">📞 ${p.sessions} sessions</span>
+          <span style="font-size:13px;font-weight:700;color:#C8621A;font-family:sans-serif">₹${p.price}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function bookPandit(id) {
+  selectedPandit = PANDITS.find(p => p.id === id);
+  selectedDate = '';
+  selectedSlot = '';
+
+  // Summary card
+  document.getElementById('booking-pandit-summary').innerHTML = `
+    <div style="width:50px;height:50px;border-radius:25px;background:#F5E6D8;display:flex;align-items:center;justify-content:center;font-weight:700;color:#C8621A;flex-shrink:0;font-family:sans-serif">${selectedPandit.avatar}</div>
+    <div>
+      <div style="font-weight:600;font-size:15px;color:#2D2D2D;font-family:sans-serif">${selectedPandit.name}</div>
+      <div style="font-size:12px;color:#8A8680;margin-top:3px;font-family:sans-serif">${selectedPandit.spec}</div>
+      <div style="font-size:14px;font-weight:700;color:#C8621A;margin-top:5px;font-family:sans-serif">₹${selectedPandit.price} / session</div>
+    </div>
+  `;
+
+  // Date buttons — next 7 days
+  const today = new Date();
+  document.getElementById('date-scroll').innerHTML = Array.from({length:7}, (_,i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i + 1);
+    const iso = d.toISOString().split('T')[0];
+    const lbl = d.toLocaleDateString('en-IN', {day:'numeric', month:'short'});
+    return `<button class="date-btn" onclick="selectDate('${iso}',this)">${lbl}</button>`;
+  }).join('');
+
+  // Slot buttons
+  document.getElementById('slot-grid').innerHTML = SLOTS.map(s =>
+    `<button class="slot-btn" onclick="selectSlot('${s}',this)">${s}</button>`
+  ).join('');
+
+  updateBookBtn();
+  goto('booking');
+}
+
+function selectDate(d, btn) {
+  selectedDate = d;
+  document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  updateBookBtn();
+}
+
+function selectSlot(s, btn) {
+  selectedSlot = s;
+  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  updateBookBtn();
+}
+
+function updateBookBtn() {
+  const btn = document.getElementById('book-confirm-btn');
+  if (selectedDate && selectedSlot) {
+    btn.disabled = false;
+    btn.textContent = `Confirm & Pay ₹${selectedPandit.price}`;
+  } else {
+    btn.disabled = true;
+    btn.textContent = 'Select date & slot to continue';
+  }
+}
+
+function confirmBooking() {
+  const d = new Date(selectedDate).toLocaleDateString('en-IN',{day:'numeric',month:'long'});
+  document.getElementById('booking-confirm-text').innerHTML =
+    `Your session with <strong>${selectedPandit.name}</strong> is confirmed for <strong>${d}</strong> at <strong>${selectedSlot}</strong>.<br><br>A confirmation will be sent to your registered phone. 📱`;
+  goto('booked');
+}
+
+/* ─── SELLER ────────────────────────────────────────── */
+function sellerBack() {
+  if (sellerStep > 1) { sellerStep--; renderSeller(); }
+  else goto('home');
+}
+
+function renderSeller() {
+  // Step bars
+  document.getElementById('seller-step-bars').innerHTML =
+    [1,2,3].map(s => `<div class="step-bar ${s<=sellerStep?'done':''}"></div>`).join('');
+  document.getElementById('seller-step-lbl').textContent = `Step ${sellerStep} of 3`;
+
+  const body = document.getElementById('seller-body');
+
+  if (sellerStep === 1) {
+    body.innerHTML = `
+      <p style="font-family:'Cinzel',Georgia,serif;font-size:16px;color:#2D2D2D;margin-bottom:20px;font-weight:600">Shop Details</p>
+      <label class="form-label">Shop / Brand Name *</label>
+      <input class="form-input" id="s-shopname" placeholder="e.g. Shivam Puja Bhandar">
+      <label class="form-label">Primary Category *</label>
+      <select class="form-select" id="s-category">
+        <option value="">Select category</option>
+        <option>Idols & Statues</option>
+        <option>Incense & Diyas</option>
+        <option>Puja Essentials</option>
+        <option>Books & Scriptures</option>
+        <option>Clothing & Accessories</option>
+      </select>
+      <label class="form-label">About your shop</label>
+      <textarea class="form-textarea" rows="3" placeholder="Tell buyers what makes your puja items special..."></textarea>
+      <button class="btn-orange" onclick="sellerNext()">Continue →</button>
+    `;
+  } else if (sellerStep === 2) {
+    body.innerHTML = `
+      <p style="font-family:'Cinzel',Georgia,serif;font-size:16px;color:#2D2D2D;margin-bottom:4px;font-weight:600">Business & Tax</p>
+      <p style="font-size:13px;color:#8A8680;margin-bottom:20px;font-family:sans-serif">GST optional for annual turnover under ₹40L</p>
+      <label class="form-label">GST Number (optional)</label>
+      <input class="form-input" id="s-gst" placeholder="22AAAAA0000A1Z5">
+      <div class="info-box">📄 You'll upload in the next step: PAN card, Shop photo, and ID proof</div>
+      <button class="btn-orange" onclick="sellerNext()">Continue →</button>
+    `;
+  } else {
+    body.innerHTML = `
+      <p style="font-family:'Cinzel',Georgia,serif;font-size:16px;color:#2D2D2D;margin-bottom:4px;font-weight:600">Payment Details</p>
+      <p style="font-size:13px;color:#8A8680;margin-bottom:20px;font-family:sans-serif">Payouts are processed every Monday</p>
+      <label class="form-label">UPI ID (fastest)</label>
+      <input class="form-input" id="s-upi" placeholder="yourname@upi">
+      <div class="divider-txt">— or bank transfer —</div>
+      <label class="form-label">Bank Account Number</label>
+      <input class="form-input" placeholder="1234567890">
+      <label class="form-label">IFSC Code</label>
+      <input class="form-input" placeholder="SBIN0001234">
+      <button class="btn-orange" onclick="goto('seller-done')">Submit Application 🙏</button>
+    `;
+  }
+}
+
+function sellerNext() {
+  if (sellerStep === 1) {
+    const name = document.getElementById('s-shopname')?.value.trim();
+    const cat = document.getElementById('s-category')?.value;
+    if (!name || !cat) { alert('Please fill in your shop name and category.'); return; }
+  }
+  sellerStep++;
+  renderSeller();
+  document.getElementById('seller-body').scrollTop = 0;
+}
+
+/* ─── UTILS ─────────────────────────────────────────── */
+function escHtml(str) {
+  return str
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/\n/g,'<br>');
+}
+
+/* ─── INIT ──────────────────────────────────────────── */
+// Wire up chat input live validation
+const chatInputEl = document.getElementById('chat-input');
+if (chatInputEl) {
+  chatInputEl.addEventListener('input', function() {
+    document.getElementById('om-btn').disabled = !this.value.trim() || chatLoading;
+  });
+}
+</script>
+</body>
+</html>
