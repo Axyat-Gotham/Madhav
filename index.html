@@ -777,11 +777,6 @@ let verseIdx = 0;
 
 /* ─── NAVIGATION ────────────────────────────────────── */
 function goto(screenId) {
-  if (screenId === 'chat') {
-    window.open('https://chatgpt.com/g/g-69c983df8ff48191a2b7d5f710c682a6-madhav', '_blank');
-    return;
-  }
-
   document.querySelectorAll('.screen').forEach(s => {
     s.classList.remove('active');
     s.classList.add('hidden');
@@ -790,10 +785,13 @@ function goto(screenId) {
   el.classList.remove('hidden');
   el.classList.add('active');
 
+  // Init screens on entry
   if (screenId === 'marketplace') initMarketplace();
   if (screenId === 'guruji') initPandits();
   if (screenId === 'seller') { sellerStep = 1; renderSeller(); }
+  if (screenId === 'chat') initChat();
 
+  // Scroll to top for non-chat screens
   if (screenId !== 'chat') {
     const body = el.querySelector('.scroll-body');
     if (body) body.scrollTop = 0;
@@ -938,7 +936,52 @@ function sendChat() {
 }
 
 function doSend(text) {
-  window.open('https://chatgpt.com/g/g-69c983df8ff48191a2b7d5f710c682a6-madhav', '_blank');
+  if (chatLoading) return;
+  chatLoading = true;
+
+  appendArjunaBubble(text);
+  chatHistory.push({role:'user', content: text});
+  showTyping();
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${ANTHROPIC_KEY}`,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: KRISHNA_SYSTEM,
+      messages: chatHistory.map(m => ({role:m.role, content:m.content}))
+    })
+  })
+  .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
+  .then(data => {
+    const reply = data.content?.[0]?.text || 'O Partha, the divine winds carry My words to you. Ask again with an open heart.';
+    chatHistory.push({role:'assistant', content: reply});
+    removeTyping();
+    appendKrishnaBubble(reply);
+  })
+  .catch(() => {
+    chatHistory.pop();
+    removeTyping();
+    const msgs = document.getElementById('chat-messages');
+    const err = document.createElement('div');
+    err.style.cssText = 'background:rgba(200,50,50,0.08);border:1px solid rgba(200,50,50,0.2);border-radius:10px;padding:12px 15px;color:#E8A0A0;font-size:14px;margin-bottom:16px;font-style:italic;font-family:Crimson Text,Georgia,serif;';
+    err.textContent = !ANTHROPIC_KEY ? 'No API key set. Refresh the page and enter your Anthropic API key to speak with Madhav.' : 'The celestial connection was interrupted. Check your API key or network and try again, O Partha.';
+    msgs.appendChild(err);
+    scrollChatBottom();
+  })
+  .finally(() => {
+    chatLoading = false;
+    const input = document.getElementById('chat-input');
+    input.disabled = false;
+    document.getElementById('om-btn').disabled = !input.value.trim();
+    input.focus();
+  });
 }
 
 function scrollChatBottom() {
@@ -1170,12 +1213,9 @@ function escHtml(str) {
 
 /* ─── INIT ──────────────────────────────────────────── */
 // Wire up chat input live validation
-const chatInputEl = document.getElementById('chat-input');
-if (chatInputEl) {
-  chatInputEl.addEventListener('input', function() {
-    document.getElementById('om-btn').disabled = !this.value.trim() || chatLoading;
-  });
-}
+document.getElementById('chat-input').addEventListener('input', function() {
+  document.getElementById('om-btn').disabled = !this.value.trim() || chatLoading;
+});
 </script>
 </body>
 </html>
