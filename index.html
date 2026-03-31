@@ -680,9 +680,9 @@ const PRODUCTS = [
 ];
 
 const PANDITS = [
-  {id:1,name:"Ackchhyat Ghimire",spec:"Vedic Astrology & Spiritual Guidance",rating:4.9,sessions:312,price:499,avail:true,avatar:"AG",phone:"9841219995"},
-  {id:2,name:"Aviral Ghimire",spec:"Gita Pravachan & Life Guidance",rating:4.8,sessions:187,price:399,avail:true,avatar:"AG",phone:"9841219995"},
-  {id:3,name:"Panditji Meena Devi",spec:"Vastu & Home Harmony",rating:4.7,sessions:95,price:549,avail:false,avatar:"MD",phone:""},
+  {id:1,name:"Abdul Kalam",spec:"Wisdom, Purpose & Spiritual Science",rating:5.0,sessions:1048,price:0,avail:true,avatar:"AK",phone:"9841219995",gptLink:"https://chatgpt.com/g/g-69cb358bc9688191b0bfb140698ffbf9-abdul-kalam"},
+  {id:2,name:"Ackchhyat Ghimire",spec:"Vedic Astrology & Spiritual Guidance",rating:4.9,sessions:312,price:499,avail:true,avatar:"AG",phone:"9841219995"},
+  {id:3,name:"Aviral Ghimire",spec:"Gita Pravachan & Life Guidance",rating:4.8,sessions:187,price:399,avail:true,avatar:"AG",phone:"9841219995"},
 ];
 
 const SLOTS = ["9:00 AM","10:30 AM","12:00 PM","2:00 PM","4:00 PM","6:00 PM"];
@@ -1060,7 +1060,7 @@ function initPandits() {
         <div style="display:flex;gap:16px">
           <span style="font-size:12px;color:#8A8680;font-family:sans-serif">⭐ ${p.rating}</span>
           <span style="font-size:12px;color:#8A8680;font-family:sans-serif">📞 ${p.phone || p.sessions + ' sessions'}</span>
-          <span style="font-size:13px;font-weight:700;color:#C8621A;font-family:sans-serif">₹${p.price}</span>
+          <span style="font-size:13px;font-weight:700;color:#C8621A;font-family:sans-serif">${p.price === 0 ? 'Free 🎁' : '₹' + p.price}</span>
         </div>
       </div>
     </div>
@@ -1068,7 +1068,9 @@ function initPandits() {
 }
 
 function bookPandit(id) {
-  selectedPandit = PANDITS.find(p => p.id === id);
+  const p = PANDITS.find(p => p.id === id);
+  if (p.gptLink) { window.open(p.gptLink, '_blank'); return; }
+  selectedPandit = p;
   selectedDate = '';
   selectedSlot = '';
 
