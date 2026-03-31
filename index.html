@@ -680,9 +680,9 @@ const PRODUCTS = [
 ];
 
 const PANDITS = [
-  {id:1,name:"Pandit Ramesh Shastri",spec:"Vedic Astrology & Kundli",rating:4.9,sessions:312,price:499,avail:true,avatar:"RS"},
-  {id:2,name:"Pandit Suresh Tiwari",spec:"Gita Pravachan & Life Guidance",rating:4.8,sessions:187,price:399,avail:true,avatar:"ST"},
-  {id:3,name:"Panditji Meena Devi",spec:"Vastu & Home Harmony",rating:4.7,sessions:95,price:549,avail:false,avatar:"MD"},
+  {id:1,name:"Ackchhyat Ghimire",spec:"Vedic Astrology & Spiritual Guidance",rating:4.9,sessions:312,price:499,avail:true,avatar:"AG",phone:"9841219995"},
+  {id:2,name:"Aviral Ghimire",spec:"Gita Pravachan & Life Guidance",rating:4.8,sessions:187,price:399,avail:true,avatar:"AG",phone:"9841219995"},
+  {id:3,name:"Panditji Meena Devi",spec:"Vastu & Home Harmony",rating:4.7,sessions:95,price:549,avail:false,avatar:"MD",phone:""},
 ];
 
 const SLOTS = ["9:00 AM","10:30 AM","12:00 PM","2:00 PM","4:00 PM","6:00 PM"];
@@ -1059,7 +1059,7 @@ function initPandits() {
         <div style="font-size:12px;color:#8A8680;margin:3px 0 8px;font-family:sans-serif">${p.spec}</div>
         <div style="display:flex;gap:16px">
           <span style="font-size:12px;color:#8A8680;font-family:sans-serif">⭐ ${p.rating}</span>
-          <span style="font-size:12px;color:#8A8680;font-family:sans-serif">📞 ${p.sessions} sessions</span>
+          <span style="font-size:12px;color:#8A8680;font-family:sans-serif">📞 ${p.phone || p.sessions + ' sessions'}</span>
           <span style="font-size:13px;font-weight:700;color:#C8621A;font-family:sans-serif">₹${p.price}</span>
         </div>
       </div>
